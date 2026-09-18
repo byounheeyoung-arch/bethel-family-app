@@ -455,8 +455,13 @@ function guessTitle(block){
 }
 function normalizeOutlineBreaks(block){
  return block
-  .replace(/\s+(?=(?:\d+\)|[a-zA-Z][.)])\s+)/g,'\n')
-  .replace(/\s+-\s+(?=[가-힣A-Za-z“‘])/g,'\n- ');
+  /* inline numbered / alphabetic subpoints: "...이다. 1) ..." or "...않는다. a. ..." */
+  .replace(/\s+(?=\d+\)\s)/g,'\n')
+  .replace(/\s+(?=[a-zA-Z][.)]\s)/g,'\n')
+  /* source uses hyphens as real bullet separators inside long OCR paragraphs */
+  .replace(/\s+-\s+(?=\S)/g,'\n- ')
+  /* keep colon-led explanation readable when several clauses were flattened */
+  .replace(/([.!?])\s+(?=(?:\d+\)|[a-zA-Z][.)])\s)/g,'$1\n');
 }
 function formatSource(block){
  return normalizeOutlineBreaks(block).split('\n').map(line=>{
