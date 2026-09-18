@@ -2496,111 +2496,8 @@ body.lesson-five .survey-item .choice span{padding:8px 6px;font-size:12px;line-h
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 })();
 </script>
-<style id="v29-lessons678-hierarchy-style">
-#slideBody.hierarchy-678 .source-block{font-size:15px;line-height:1.66;letter-spacing:-.01em}
-#slideBody.hierarchy-678 .h-row{--h-indent:0px;display:grid!important;grid-template-columns:34px minmax(0,1fr);column-gap:2px;align-items:start;width:100%;box-sizing:border-box;padding-left:var(--h-indent)!important;border-left:0!important;margin:0!important;line-height:1.62!important;word-break:keep-all;overflow-wrap:anywhere}
-#slideBody.hierarchy-678 .h-row>.num-label{display:block!important;min-width:0!important;margin:0!important;padding:0!important;font-weight:900;text-align:left}
-#slideBody.hierarchy-678 .h-row.h1{--h-indent:0px;margin-top:17px!important;margin-bottom:7px!important;font-size:1.05em;font-weight:900!important;color:#14291b}
-#slideBody.hierarchy-678 .h-row.h2{--h-indent:16px;margin-top:10px!important;margin-bottom:4px!important;font-weight:800!important;color:#203c29}
-#slideBody.hierarchy-678 .h-row.h3{--h-indent:34px;margin-top:7px!important;margin-bottom:3px!important;font-weight:700!important;color:#2f4936}
-#slideBody.hierarchy-678 .h-row.h4{--h-indent:52px;margin-top:4px!important;margin-bottom:2px!important;font-weight:500!important;color:#334b39}
-#slideBody.hierarchy-678 .h-cont{display:block!important;margin:0 0 5px!important;padding-left:var(--h-cont-indent,34px)!important;line-height:1.66!important;font-weight:400!important;border-left:0!important}
-#slideBody.hierarchy-678 .source-bullet.h-cont{position:relative;padding-left:calc(var(--h-cont-indent,34px) + 16px)!important}
-#slideBody.hierarchy-678 .source-bullet.h-cont:before{left:var(--h-cont-indent,34px)!important}
-#slideBody.hierarchy-678 .h-row + .h-cont{margin-top:0!important}
-#slideBody.hierarchy-678 .h-group-gap{margin-top:9px!important}
-#slideBody.hierarchy-678 .source-block>.key-callout{margin:12px 0;line-height:1.65}
-#slideBody.hierarchy-678 .stable-table,#slideBody.hierarchy-678 .v25-table,#slideBody.hierarchy-678 .peace-grid-v22{margin-top:12px}
-@media(max-width:560px){
- #slideBody.hierarchy-678 .source-block{font-size:15px;line-height:1.64}
- #slideBody.hierarchy-678 .h-row{grid-template-columns:30px minmax(0,1fr);column-gap:1px}
- #slideBody.hierarchy-678 .h-row.h2{--h-indent:10px}
- #slideBody.hierarchy-678 .h-row.h3{--h-indent:22px}
- #slideBody.hierarchy-678 .h-row.h4{--h-indent:34px}
- #slideBody.hierarchy-678 .h-cont{padding-left:var(--h-cont-indent,30px)!important}
-}
-</style>
-<script id="v29-lessons678-hierarchy-script">
-(function(){
- 'use strict';
- function safe(v){
-   return String(v==null?'':v).replace(/[&<>"]/g,function(m){
-     return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m];
-   });
- }
- function prefixInfo(text){
-   var t=String(text||'').replace(/\s+/g,' ').trim(),m;
-   m=t.match(/^((?:i|ii|iii|iv|v|vi|vii|viii|ix|x)\))\s*/i);
-   if(m)return {kind:'roman',label:m[1]};
-   m=t.match(/^(\d+\))\s*/);
-   if(m)return {kind:'paren',label:m[1]};
-   m=t.match(/^(\d+\.)\s*/);
-   if(m)return {kind:'decimal',label:m[1]};
-   m=t.match(/^([A-Za-z][.)])\s*/);
-   if(m)return {kind:'alpha',label:m[1]};
-   return null;
- }
- function ensureLabel(el,info){
-   if(el.querySelector(':scope > .num-label'))return;
-   var full=(el.textContent||'').trim();
-   var body=full.slice(info.label.length).trim();
-   el.innerHTML='<span class="num-label">'+safe(info.label)+'</span><span>'+safe(body)+'</span>';
- }
- function decorateBlock(block){
-   if(!block||block.dataset.hierarchy678==='1')return;
-   var nodes=[].slice.call(block.children).filter(function(el){
-     return el.matches('.source-line,.source-number-line,.source-heading,.source-subheading,.source-subsub,.source-roman');
-   });
-   var lastLevel=1,sectionHasParen=false,sectionHasAlpha=false;
-   nodes.forEach(function(el,index){
-     if(el.closest('.inline-check-grid,.check-grid,.stable-table,.v25-table'))return;
-     var info=prefixInfo((el.textContent||'').trim());
-     el.classList.remove('h-row','h1','h2','h3','h4','h-cont','h-group-gap');
-     if(info){
-       var level=1;
-       if(info.kind==='decimal'){
-         level=1;sectionHasParen=false;sectionHasAlpha=false;
-       }else if(info.kind==='paren'){
-         level=2;sectionHasParen=true;sectionHasAlpha=false;
-       }else if(info.kind==='alpha'){
-         level=sectionHasParen?3:2;sectionHasAlpha=true;
-       }else if(info.kind==='roman'){
-         level=sectionHasAlpha?(sectionHasParen?4:3):3;
-       }
-       ensureLabel(el,info);
-       el.classList.add('h-row','h'+level);
-       if(index>0&&level===1)el.classList.add('h-group-gap');
-       lastLevel=level;
-     }else{
-       var indent={1:34,2:50,3:68,4:86}[lastLevel]||34;
-       el.classList.add('h-cont');
-       el.style.setProperty('--h-cont-indent',indent+'px');
-     }
-   });
-   block.dataset.hierarchy678='1';
- }
- function apply(){
-   var root=document.getElementById('slideBody');if(!root)return;
-   var enabled=typeof currentLesson==='number'&&currentLesson>=5&&currentLesson<=7;
-   root.classList.toggle('hierarchy-678',enabled);
-   if(!enabled)return;
-   root.querySelectorAll('.source-block').forEach(decorateBlock);
- }
- function boot(){
-   var root=document.getElementById('slideBody');if(!root)return;
-   new MutationObserver(function(){setTimeout(apply,0);}).observe(root,{childList:true,subtree:true});
-   apply();
- }
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
- var priorRender=window.renderSlide;
- if(typeof priorRender==='function'){
-   window.renderSlide=function(){
-     priorRender();
-     setTimeout(apply,0);
-   };
- }
-})();
-</script>
+
+
 <style id="v30-selective-emphasis-style">
 /* v30 — 전체 타이포그래피 원칙:
    1. / 큰 제목만 확실히 강조
@@ -2725,231 +2622,8 @@ body.lesson-five .survey-item .choice span{padding:8px 6px;font-size:12px;line-h
  }
 })();
 </script>
-<style id="v31-global-hierarchy-style">
-/* v31 — 1~8강 공통 위계 + 5강 기준 행간
-   계층: 1. → 1) / A. → a) / i) → - 설명·근거
-   5강에서 사용하던 약 1.45~1.46 행간을 전체 본문에 통일 */
-#slideBody.hierarchy-all .source-block,
-#slideBody.hierarchy-all .source-line,
-#slideBody.hierarchy-all .source-number-line,
-#slideBody.hierarchy-all .source-heading,
-#slideBody.hierarchy-all .source-subheading,
-#slideBody.hierarchy-all .source-subsub,
-#slideBody.hierarchy-all .source-bullet,
-#slideBody.hierarchy-all .source-roman,
-#slideBody.hierarchy-all .key-callout,
-#slideBody.hierarchy-all .actual-application{
-  line-height:1.46!important;
-  letter-spacing:-0.01em;
-}
 
-/* 번호는 별도 열, 본문은 같은 시작선에 정렬 */
-#slideBody.hierarchy-all .g-row{
-  display:grid!important;
-  grid-template-columns:34px minmax(0,1fr)!important;
-  column-gap:2px!important;
-  width:100%!important;
-  box-sizing:border-box!important;
-  border-left:0!important;
-  padding-left:var(--g-pad,0px)!important;
-  margin-left:0!important;
-  margin-right:0!important;
-  line-height:1.46!important;
-}
-#slideBody.hierarchy-all .g-row>.num-label{
-  display:block!important;
-  min-width:0!important;
-  margin:0!important;
-  padding:0!important;
-  text-align:left!important;
-}
 
-/* 선택적 강조: 큰 위계만 굵게 */
-#slideBody.hierarchy-all .g-main{
-  --g-pad:0px;
-  margin-top:15px!important;
-  margin-bottom:6px!important;
-  font-weight:720!important;
-  color:#14291b!important;
-}
-#slideBody.hierarchy-all .g-main>.num-label{font-weight:850!important}
-
-#slideBody.hierarchy-all .g-section{
-  --g-pad:14px;
-  margin-top:9px!important;
-  margin-bottom:4px!important;
-  font-weight:600!important;
-  color:#203c29!important;
-}
-#slideBody.hierarchy-all .g-section>.num-label{font-weight:780!important}
-
-#slideBody.hierarchy-all .g-item{
-  --g-pad:30px;
-  margin-top:4px!important;
-  margin-bottom:3px!important;
-  font-weight:400!important;
-  color:inherit!important;
-}
-#slideBody.hierarchy-all .g-item>.num-label{font-weight:720!important}
-
-#slideBody.hierarchy-all .g-detail{
-  --g-pad:46px;
-  margin-top:2px!important;
-  margin-bottom:2px!important;
-  font-weight:400!important;
-  color:#334b39!important;
-}
-#slideBody.hierarchy-all .g-detail>.num-label{font-weight:700!important}
-
-/* '-' 표식도 위계로 살린다. 현재 문맥보다 한 단계 안쪽으로 배치 */
-#slideBody.hierarchy-all .source-bullet.g-bullet{
-  position:relative!important;
-  display:block!important;
-  margin:2px 0 3px!important;
-  padding-left:calc(var(--g-bullet-pad,34px) + 18px)!important;
-  font-weight:400!important;
-  line-height:1.46!important;
-}
-#slideBody.hierarchy-all .source-bullet.g-bullet:before{
-  content:"–"!important;
-  left:var(--g-bullet-pad,34px)!important;
-  top:0!important;
-  color:var(--accent)!important;
-  font-weight:760!important;
-}
-
-/* 번호·불릿 뒤 이어지는 설명문도 같은 본문 열에 맞춘다 */
-#slideBody.hierarchy-all .g-cont{
-  display:block!important;
-  margin:0 0 4px!important;
-  padding-left:var(--g-cont-pad,34px)!important;
-  line-height:1.46!important;
-  font-weight:400!important;
-  border-left:0!important;
-}
-
-/* 의미 제목은 위계로 보이되 과도하게 굵지 않게 */
-#slideBody.hierarchy-all .source-heading.g-semantic{
-  font-weight:620!important;
-  margin-top:10px!important;
-  margin-bottom:4px!important;
-  line-height:1.46!important;
-}
-
-/* 설문/질문/체크도 5강의 1.45 전후 호흡으로 통일 */
-.question-card label,
-.survey-item>strong,
-.checklist-prompt,
-.inline-check-item,
-.choice span,
-.checklist-intro,
-.checklist-note{
-  line-height:1.46!important;
-  letter-spacing:-0.01em;
-}
-
-@media(max-width:560px){
-  #slideBody.hierarchy-all .g-row{
-    grid-template-columns:30px minmax(0,1fr)!important;
-  }
-  #slideBody.hierarchy-all .g-section{--g-pad:8px}
-  #slideBody.hierarchy-all .g-item{--g-pad:18px}
-  #slideBody.hierarchy-all .g-detail{--g-pad:30px}
-}
-</style>
-<script id="v31-global-hierarchy-script">
-(function(){
- 'use strict';
-
- function labelKind(label){
-   var x=String(label||'').trim();
-   if(/^\d+\.$/.test(x)) return 'main';
-   if(/^\d+\)$/.test(x)) return 'section';
-   if(/^[A-H][.)]$/.test(x)) return 'section';
-   if(/^(?:i|ii|iii|iv|v|vi|vii|viii|ix|x)\)$/i.test(x)) return 'detail';
-   if(/^[a-z][.)]$/.test(x)) return 'item';
-   return '';
- }
-
- function levelOf(kind){
-   return kind==='main'?1:kind==='section'?2:kind==='item'?3:kind==='detail'?4:1;
- }
-
- function textIndent(level){
-   return ({1:34,2:50,3:66,4:82})[level]||34;
- }
-
- function bulletIndent(level){
-   return ({1:34,2:50,3:66,4:82})[level]||34;
- }
-
- function decorateBlock(block){
-   if(!block)return;
-
-   var children=[].slice.call(block.children);
-   var currentLevel=1;
-
-   children.forEach(function(el){
-     if(el.matches('.stable-table,.stable-cards,.v25-table,.check-grid,.inline-check-grid,.peace-grid-v22,.lesson-youtube-frame')) return;
-     if(el.closest('.stable-table,.stable-cards,.v25-table,.check-grid,.inline-check-grid,.peace-grid-v22')) return;
-
-     el.classList.remove('g-row','g-main','g-section','g-item','g-detail','g-bullet','g-cont','g-semantic');
-
-     var num=el.querySelector(':scope > .num-label');
-     if(num){
-       var kind=labelKind(num.textContent);
-       if(kind){
-         currentLevel=levelOf(kind);
-         el.classList.add('g-row','g-'+kind);
-         return;
-       }
-     }
-
-     if(el.classList.contains('source-bullet')){
-       el.classList.add('g-bullet');
-       el.style.setProperty('--g-bullet-pad',bulletIndent(currentLevel)+'px');
-       return;
-     }
-
-     if(el.classList.contains('source-heading')){
-       el.classList.add('g-semantic');
-       currentLevel=Math.max(1,Math.min(currentLevel,2));
-       return;
-     }
-
-     if(el.matches('.source-line,.source-subheading,.source-subsub,.source-roman')){
-       el.classList.add('g-cont');
-       el.style.setProperty('--g-cont-pad',textIndent(currentLevel)+'px');
-     }
-   });
- }
-
- function apply(){
-   var root=document.getElementById('slideBody');
-   if(!root)return;
-   root.classList.add('hierarchy-all');
-   root.querySelectorAll('.source-block').forEach(decorateBlock);
- }
-
- function boot(){
-   var root=document.getElementById('slideBody');
-   if(!root)return;
-   new MutationObserver(function(){setTimeout(apply,0);}).observe(root,{childList:true,subtree:true});
-   apply();
- }
-
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);
- else boot();
-
- var prior=window.renderSlide;
- if(typeof prior==='function'){
-   window.renderSlide=function(){
-     prior();
-     setTimeout(apply,0);
-   };
- }
-})();
-</script>
 <style id="v32-hierarchy-repair-style">
 /* v32 — hierarchy repair
    Fixes the broken narrow text columns caused by putting inline emphasis spans
@@ -3242,6 +2916,204 @@ body.lesson-five .survey-item .choice span{padding:8px 6px;font-size:12px;line-h
    window.renderSlide=function(){
      prior();
      setTimeout(apply,0);
+   };
+ }
+})();
+</script>
+<style id="v33-split-safety-style">
+/* v33 — global anti-vertical-splitting safety layer */
+
+/* Old hierarchy classes may still exist transiently in a cached DOM; neutralize them. */
+#slideBody.hierarchy-v33 .h-row,
+#slideBody.hierarchy-v33 .g-row{
+  display:block!important;
+  grid-template-columns:none!important;
+  padding-left:0!important;
+  margin-left:0!important;
+}
+
+/* The safe hierarchy wrapper owns the two-column layout. */
+#slideBody.hierarchy-v33 .hierarchy-row{
+  display:grid!important;
+  grid-template-columns:34px minmax(0,1fr)!important;
+  column-gap:4px!important;
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+}
+#slideBody.hierarchy-v33 .hierarchy-row>.num-label{
+  grid-column:1!important;
+  width:auto!important;
+  min-width:0!important;
+}
+#slideBody.hierarchy-v33 .hierarchy-row>.hierarchy-text{
+  grid-column:2!important;
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+  white-space:normal!important;
+  word-break:keep-all!important;
+  overflow-wrap:break-word!important;
+}
+
+/* Inline emphasis must remain inline; it must never become an accidental grid column. */
+#slideBody.hierarchy-v33 .hierarchy-text .pdf-bold,
+#slideBody.hierarchy-v33 .hierarchy-text strong,
+#slideBody.hierarchy-v33 .hierarchy-text em,
+#slideBody.hierarchy-v33 .hierarchy-text mark{
+  display:inline!important;
+  width:auto!important;
+  min-width:0!important;
+  max-width:100%!important;
+  grid-column:auto!important;
+  grid-row:auto!important;
+  white-space:normal!important;
+  word-break:keep-all!important;
+  overflow-wrap:break-word!important;
+}
+
+/* Harden every prose-like area against narrow-column collapse. */
+#slideBody.hierarchy-v33 .source-block,
+#slideBody.hierarchy-v33 .source-line,
+#slideBody.hierarchy-v33 .source-heading,
+#slideBody.hierarchy-v33 .source-subheading,
+#slideBody.hierarchy-v33 .source-subsub,
+#slideBody.hierarchy-v33 .source-roman,
+#slideBody.hierarchy-v33 .source-bullet,
+#slideBody.hierarchy-v33 .key-callout,
+#slideBody.hierarchy-v33 .actual-application,
+#slideBody.hierarchy-v33 .actual-title,
+#slideBody.hierarchy-v33 .actual-group,
+#slideBody.hierarchy-v33 .actual-item,
+.question-card label,
+.survey-item>strong,
+.checklist-prompt,
+.inline-check-item span,
+.choice span,
+.v25-note-card p{
+  min-width:0!important;
+  max-width:100%!important;
+  white-space:normal!important;
+  word-break:keep-all!important;
+  overflow-wrap:break-word!important;
+}
+
+/* Runtime watchdog classes: applied only when a text box is suspiciously narrow. */
+#slideBody .split-safe-block{
+  display:block!important;
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+  grid-column:1 / -1!important;
+  white-space:normal!important;
+  word-break:keep-all!important;
+  overflow-wrap:break-word!important;
+}
+#slideBody .split-safe-inline{
+  display:inline!important;
+  width:auto!important;
+  max-width:100%!important;
+  min-width:0!important;
+  grid-column:auto!important;
+  white-space:normal!important;
+  word-break:keep-all!important;
+  overflow-wrap:break-word!important;
+}
+
+@media(max-width:560px){
+  #slideBody.hierarchy-v33 .hierarchy-row{
+    grid-template-columns:30px minmax(0,1fr)!important;
+    column-gap:3px!important;
+  }
+}
+</style>
+<script id="v33-split-safety-script">
+(function(){
+ 'use strict';
+
+ function excluded(el){
+   return !!el.closest(
+     '.stable-table,.stable-cards,.mobile-table,.table-card-list,.v23-table,.v25-table,'+
+     '.check-grid,.inline-check-grid,.options,.metric-grid,.bar-list,.peace-grid-v22'
+   );
+ }
+
+ function cleanupLegacy(root){
+   root.classList.remove('hierarchy-all','hierarchy-678');
+   root.classList.add('hierarchy-v33');
+   root.querySelectorAll('.h-row,.h1,.h2,.h3,.h4,.h-cont,.h-group-gap,.g-row,.g-main,.g-section,.g-item,.g-detail,.g-bullet,.g-cont,.g-semantic')
+     .forEach(function(el){
+       el.classList.remove(
+         'h-row','h1','h2','h3','h4','h-cont','h-group-gap',
+         'g-row','g-main','g-section','g-item','g-detail','g-bullet','g-cont','g-semantic'
+       );
+       el.style.removeProperty('--h-indent');
+       el.style.removeProperty('--h-cont-indent');
+       el.style.removeProperty('--g-pad');
+       el.style.removeProperty('--g-cont-pad');
+       el.style.removeProperty('--g-bullet-pad');
+     });
+ }
+
+ function auditBlocks(root){
+   var selectors=[
+     '.source-line','.source-heading','.source-subheading','.source-subsub','.source-roman',
+     '.source-bullet','.key-callout','.actual-title','.actual-group','.actual-item',
+     '.question-card label','.survey-item>strong','.v25-note-card p'
+   ];
+   root.querySelectorAll(selectors.join(',')).forEach(function(el){
+     if(excluded(el))return;
+     el.classList.remove('split-safe-block');
+     var p=el.parentElement;if(!p)return;
+     var er=el.getBoundingClientRect(),pr=p.getBoundingClientRect();
+     var text=(el.textContent||'').replace(/\s+/g,' ').trim();
+     if(text.length>=10 && pr.width>=260 && er.width>0 && er.width<Math.min(130,pr.width*.42)){
+       el.classList.add('split-safe-block');
+     }
+   });
+ }
+
+ function auditInline(root){
+   root.querySelectorAll('.source-block .pdf-bold,.source-block strong,.source-block em,.source-block mark').forEach(function(el){
+     if(excluded(el))return;
+     el.classList.remove('split-safe-inline');
+     var p=el.parentElement;if(!p)return;
+     var er=el.getBoundingClientRect(),pr=p.getBoundingClientRect();
+     var text=(el.textContent||'').replace(/\s+/g,' ').trim();
+     if(text.length>=5 && pr.width>=240 && er.width>0 && er.width<72){
+       el.classList.add('split-safe-inline');
+     }
+   });
+ }
+
+ function run(){
+   var root=document.getElementById('slideBody');if(!root)return;
+   cleanupLegacy(root);
+   // Let v32 create/repair hierarchy-text wrappers first, then audit actual rendered widths.
+   requestAnimationFrame(function(){
+     auditBlocks(root);
+     auditInline(root);
+   });
+ }
+
+ function boot(){
+   var root=document.getElementById('slideBody');if(!root)return;
+   var queued=false;
+   new MutationObserver(function(){
+     if(queued)return;queued=true;
+     setTimeout(function(){queued=false;run()},0);
+   }).observe(root,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
+   window.addEventListener('resize',run,{passive:true});
+   run();
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);
+ else boot();
+
+ var prior=window.renderSlide;
+ if(typeof prior==='function'){
+   window.renderSlide=function(){
+     prior();
+     setTimeout(run,0);
    };
  }
 })();
