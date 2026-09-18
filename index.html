@@ -69,14 +69,14 @@ h3{font-size:16px;margin-bottom:8px}
 .swipe-guide{text-align:center;font-size:12px;color:var(--muted);margin:14px 0 0;line-height:1.5}
 
 /* source content */
-.source-block{font-size:14px;line-height:1.52;word-break:keep-all;overflow-wrap:anywhere}
+.source-block{font-size:14px;line-height:1.46;word-break:keep-all;overflow-wrap:anywhere}
 .source-block>.source-line{display:block;width:100%;clear:both}
 .source-line{margin:0 0 3px}
-.source-heading{font-weight:800;font-size:1.03em;color:#14291b;border-left:4px solid var(--accent);padding-left:9px;margin:9px 0 4px}
-.source-subheading{font-weight:700;color:#203c29;padding-left:16px;margin:6px 0 3px}
-.source-subsub{font-weight:600;color:#334b39;padding-left:28px;margin:4px 0 2px}
+.source-heading{font-weight:800;font-size:1.03em;color:#14291b;border-left:4px solid var(--accent);padding-left:9px;margin:7px 0 3px}
+.source-subheading{font-weight:700;color:#203c29;padding-left:16px;margin:4px 0 2px}
+.source-subsub{font-weight:600;color:#334b39;padding-left:28px;margin:3px 0 1px}
 .source-bullet{padding-left:18px;position:relative;font-weight:400;margin-bottom:2px}
-.source-roman{font-weight:400;color:#334b39;padding-left:42px;margin:2px 0}
+.source-roman{font-weight:400;color:#334b39;padding-left:42px;margin:1px 0}
 .source-line{font-weight:400}
 .source-block .pdf-bold{font-weight:700}
 .source-bullet:before{content:"•";position:absolute;left:2px;color:var(--accent);font-weight:900}
@@ -398,19 +398,17 @@ function stripInteractiveBlocks(raw,li,r){
 function splitBlocks(raw){
  return raw.replace(/\f/g,'\n\n').split(/\n\s*\n+/).map(x=>x.trim()).filter(Boolean);
 }
-function splitLongBlock(block,max=620){
- const lines=block.replace(/\f/g,'\n').split('\n').map(x=>x.trim()).filter(Boolean),parts=[];let cur='';
- const structural=x=>/^(?:\d+[.,)]|[a-h][.)]|(?:i|ii|iii|iv|v|vi|vii|viii|ix|x)\)|[-●*•○]|[①-⑩])\s*/i.test(x);
+function splitLongBlock(block,max=760){
+ const lines=block.replace(/\f/g,'\n').split('\n').map(x=>x.trim()).filter(Boolean);
+ const parts=[];let cur=[];let len=0;
+ const top=x=>/^\d+[.,]\s*/.test(x);
  for(const line of lines){
-  if(structural(line)){
-   if(cur){parts.push(cur.trim());cur=''}
-   cur=line;
-   continue;
-  }
-  if(cur && cur.length+1+line.length>max){parts.push(cur.trim());cur=line}
-  else cur=cur?(cur+' '+line):line;
+   // Keep hierarchy together; start a new chunk only at a major section when the current chunk is substantial.
+   if(top(line)&&cur.length&&len>360){parts.push(cur.join('\n'));cur=[];len=0}
+   if(cur.length&&len+line.length>max){parts.push(cur.join('\n'));cur=[];len=0}
+   cur.push(line);len+=line.length+1;
  }
- if(cur)parts.push(cur.trim());
+ if(cur.length)parts.push(cur.join('\n'));
  return parts;
 }
 function tableLike(block){
@@ -468,10 +466,10 @@ function normalizeOutlineBreaks(block){
   .replace(/([.!?])\s+(?=(?:\d+\)|[a-zA-Z][.)])\s)/g,'$1\n');
 }
 function formatSource(block){
- let t=String(block||'').replace(/\r/g,' ').replace(/\f/g,'\n').replace(/\n+/g,'\n').trim();
- // Normalize flattened OCR/PDF outlines at every supported hierarchy level.
- t=t.replace(/\s+(?=(?:\d+\)|[a-h][.)]|(?:i|ii|iii|iv|v|vi|vii|viii|ix|x)\))\s*)/gi,'\n');
- t=t.replace(/\s+-\s+(?=\S)/g,'\n- ');
+ let t=String(block||'').replace(/\r/g,' ').replace(/\f/g,'\n');
+ // OCR sometimes leaves hierarchy markers inside a physical line. Break them before rendering.
+ t=t.replace(/[ \t]+(?=(?:\d+\)|(?:i|ii|iii|iv|v|vi|vii|viii|ix|x)\)|[a-h][.)])\s+)/gi,'\n');
+ t=t.replace(/[ \t]+-[ \t]+(?=\S)/g,'\n- ');
  const lines=t.split(/\n+/).map(x=>x.trim()).filter(Boolean);
  let out='';
  for(const x of lines){
