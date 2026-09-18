@@ -2496,6 +2496,111 @@ body.lesson-five .survey-item .choice span{padding:8px 6px;font-size:12px;line-h
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 })();
 </script>
+<style id="v29-lessons678-hierarchy-style">
+#slideBody.hierarchy-678 .source-block{font-size:15px;line-height:1.66;letter-spacing:-.01em}
+#slideBody.hierarchy-678 .h-row{--h-indent:0px;display:grid!important;grid-template-columns:34px minmax(0,1fr);column-gap:2px;align-items:start;width:100%;box-sizing:border-box;padding-left:var(--h-indent)!important;border-left:0!important;margin:0!important;line-height:1.62!important;word-break:keep-all;overflow-wrap:anywhere}
+#slideBody.hierarchy-678 .h-row>.num-label{display:block!important;min-width:0!important;margin:0!important;padding:0!important;font-weight:900;text-align:left}
+#slideBody.hierarchy-678 .h-row.h1{--h-indent:0px;margin-top:17px!important;margin-bottom:7px!important;font-size:1.05em;font-weight:900!important;color:#14291b}
+#slideBody.hierarchy-678 .h-row.h2{--h-indent:16px;margin-top:10px!important;margin-bottom:4px!important;font-weight:800!important;color:#203c29}
+#slideBody.hierarchy-678 .h-row.h3{--h-indent:34px;margin-top:7px!important;margin-bottom:3px!important;font-weight:700!important;color:#2f4936}
+#slideBody.hierarchy-678 .h-row.h4{--h-indent:52px;margin-top:4px!important;margin-bottom:2px!important;font-weight:500!important;color:#334b39}
+#slideBody.hierarchy-678 .h-cont{display:block!important;margin:0 0 5px!important;padding-left:var(--h-cont-indent,34px)!important;line-height:1.66!important;font-weight:400!important;border-left:0!important}
+#slideBody.hierarchy-678 .source-bullet.h-cont{position:relative;padding-left:calc(var(--h-cont-indent,34px) + 16px)!important}
+#slideBody.hierarchy-678 .source-bullet.h-cont:before{left:var(--h-cont-indent,34px)!important}
+#slideBody.hierarchy-678 .h-row + .h-cont{margin-top:0!important}
+#slideBody.hierarchy-678 .h-group-gap{margin-top:9px!important}
+#slideBody.hierarchy-678 .source-block>.key-callout{margin:12px 0;line-height:1.65}
+#slideBody.hierarchy-678 .stable-table,#slideBody.hierarchy-678 .v25-table,#slideBody.hierarchy-678 .peace-grid-v22{margin-top:12px}
+@media(max-width:560px){
+ #slideBody.hierarchy-678 .source-block{font-size:15px;line-height:1.64}
+ #slideBody.hierarchy-678 .h-row{grid-template-columns:30px minmax(0,1fr);column-gap:1px}
+ #slideBody.hierarchy-678 .h-row.h2{--h-indent:10px}
+ #slideBody.hierarchy-678 .h-row.h3{--h-indent:22px}
+ #slideBody.hierarchy-678 .h-row.h4{--h-indent:34px}
+ #slideBody.hierarchy-678 .h-cont{padding-left:var(--h-cont-indent,30px)!important}
+}
+</style>
+<script id="v29-lessons678-hierarchy-script">
+(function(){
+ 'use strict';
+ function safe(v){
+   return String(v==null?'':v).replace(/[&<>"]/g,function(m){
+     return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m];
+   });
+ }
+ function prefixInfo(text){
+   var t=String(text||'').replace(/\s+/g,' ').trim(),m;
+   m=t.match(/^((?:i|ii|iii|iv|v|vi|vii|viii|ix|x)\))\s*/i);
+   if(m)return {kind:'roman',label:m[1]};
+   m=t.match(/^(\d+\))\s*/);
+   if(m)return {kind:'paren',label:m[1]};
+   m=t.match(/^(\d+\.)\s*/);
+   if(m)return {kind:'decimal',label:m[1]};
+   m=t.match(/^([A-Za-z][.)])\s*/);
+   if(m)return {kind:'alpha',label:m[1]};
+   return null;
+ }
+ function ensureLabel(el,info){
+   if(el.querySelector(':scope > .num-label'))return;
+   var full=(el.textContent||'').trim();
+   var body=full.slice(info.label.length).trim();
+   el.innerHTML='<span class="num-label">'+safe(info.label)+'</span><span>'+safe(body)+'</span>';
+ }
+ function decorateBlock(block){
+   if(!block||block.dataset.hierarchy678==='1')return;
+   var nodes=[].slice.call(block.children).filter(function(el){
+     return el.matches('.source-line,.source-number-line,.source-heading,.source-subheading,.source-subsub,.source-roman');
+   });
+   var lastLevel=1,sectionHasParen=false,sectionHasAlpha=false;
+   nodes.forEach(function(el,index){
+     if(el.closest('.inline-check-grid,.check-grid,.stable-table,.v25-table'))return;
+     var info=prefixInfo((el.textContent||'').trim());
+     el.classList.remove('h-row','h1','h2','h3','h4','h-cont','h-group-gap');
+     if(info){
+       var level=1;
+       if(info.kind==='decimal'){
+         level=1;sectionHasParen=false;sectionHasAlpha=false;
+       }else if(info.kind==='paren'){
+         level=2;sectionHasParen=true;sectionHasAlpha=false;
+       }else if(info.kind==='alpha'){
+         level=sectionHasParen?3:2;sectionHasAlpha=true;
+       }else if(info.kind==='roman'){
+         level=sectionHasAlpha?(sectionHasParen?4:3):3;
+       }
+       ensureLabel(el,info);
+       el.classList.add('h-row','h'+level);
+       if(index>0&&level===1)el.classList.add('h-group-gap');
+       lastLevel=level;
+     }else{
+       var indent={1:34,2:50,3:68,4:86}[lastLevel]||34;
+       el.classList.add('h-cont');
+       el.style.setProperty('--h-cont-indent',indent+'px');
+     }
+   });
+   block.dataset.hierarchy678='1';
+ }
+ function apply(){
+   var root=document.getElementById('slideBody');if(!root)return;
+   var enabled=typeof currentLesson==='number'&&currentLesson>=5&&currentLesson<=7;
+   root.classList.toggle('hierarchy-678',enabled);
+   if(!enabled)return;
+   root.querySelectorAll('.source-block').forEach(decorateBlock);
+ }
+ function boot(){
+   var root=document.getElementById('slideBody');if(!root)return;
+   new MutationObserver(function(){setTimeout(apply,0);}).observe(root,{childList:true,subtree:true});
+   apply();
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+ var priorRender=window.renderSlide;
+ if(typeof priorRender==='function'){
+   window.renderSlide=function(){
+     priorRender();
+     setTimeout(apply,0);
+   };
+ }
+})();
+</script>
 
 </body>
 </html>
