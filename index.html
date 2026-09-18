@@ -2318,6 +2318,184 @@ body.lesson-five .survey-item .choice span{padding:8px 6px;font-size:12px;line-h
   window.addEventListener('load',function(){ setTimeout(boot,0); });
 })();
 </script>
+<style id="v28-unified-checkbox-style">
+/* v28: literal standalone □ lists are real learner checklists everywhere. */
+.inline-check-context{margin:0 0 12px;line-height:1.75}
+.inline-check-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:10px 0 4px}
+.inline-check-item{display:flex;align-items:flex-start;gap:10px;min-width:0;padding:11px 12px;border:1px solid var(--line);border-radius:13px;background:#fff;line-height:1.45;cursor:pointer;transition:background .15s,border-color .15s}
+.inline-check-item:hover{border-color:#aebbac;background:#fafcf9}
+.inline-check-item:has(input:checked){background:var(--accent-soft);border-color:var(--accent);font-weight:800}
+.inline-check-item input[type="checkbox"]{appearance:none;-webkit-appearance:none;width:20px;height:20px;flex:0 0 20px;margin:1px 0 0;border:1.6px solid #8e998f;border-radius:5px;background:#fff;display:grid;place-items:center}
+.inline-check-item input[type="checkbox"]:checked{background:var(--accent);border-color:var(--accent)}
+.inline-check-item input[type="checkbox"]:checked::after{content:"✓";color:#fff;font-size:15px;font-weight:900;line-height:1}
+.inline-check-item span{min-width:0;word-break:keep-all;overflow-wrap:anywhere}
+@media(max-width:560px){.inline-check-grid{grid-template-columns:1fr}.inline-check-item{padding:12px 13px}}
+</style>
+<script id="v28-unified-checkbox-script">
+(function(){
+ 'use strict';
+
+ function norm(v){
+   return String(v||'')
+     .replace(/<[^>]*>/g,' ')
+     .replace(/[“”"'‘’]/g,'')
+     .replace(/[.。]+$/,'')
+     .replace(/\s+/g,' ')
+     .trim();
+ }
+ function esc28(v){
+   return String(v==null?'':v).replace(/[&<>"']/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m];});
+ }
+ function hash28(v){
+   var h=2166136261,s=String(v||'');
+   for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}
+   return (h>>>0).toString(36);
+ }
+ function candidates(){
+   var out=[];
+   if(!window.DATA||!DATA.surveys)return out;
+   Object.keys(DATA.surveys).forEach(function(lesson){
+     (DATA.surveys[lesson]||[]).forEach(function(s){
+       if(s.type==='multi'&&Array.isArray(s.items)&&s.items.length){
+         out.push({lesson:Number(lesson)-1,id:s.id,section:null,items:s.items});
+       }
+       if(s.type==='conflict-workbook'&&Array.isArray(s.sections)){
+         s.sections.forEach(function(sec,si){
+           if(Array.isArray(sec.items)&&sec.items.length)out.push({lesson:Number(lesson)-1,id:s.id,section:si,items:sec.items});
+         });
+       }
+     });
+   });
+   return out;
+ }
+ function bestCandidate(labels){
+   var li=(typeof currentLesson==='number')?currentLesson:null;
+   var labs=labels.map(norm).filter(Boolean),best=null;
+   if(labs.length<1)return null;
+   candidates().forEach(function(c){
+     if(li!=null&&c.lesson!==li)return;
+     var cn=c.items.map(norm),matched=[];
+     labs.forEach(function(l){
+       var idx=cn.findIndex(function(x){return x===l||l.indexOf(x)===0||x.indexOf(l)===0;});
+       if(idx>=0)matched.push(idx);
+     });
+     var ratio=matched.length/labs.length;
+     if(matched.length>=2&&ratio>=0.7&&(!best||ratio>best.ratio||matched.length>best.matched.length)){
+       best={candidate:c,ratio:ratio,matched:matched};
+     }
+   });
+   return best;
+ }
+ function ensureSurvey(id){
+   store.surveys[id]??={answers:{},multi:[],text:{}};
+   store.surveys[id].multi=store.surveys[id].multi||[];
+   return store.surveys[id];
+ }
+ function checkedFor(candidate,index,genericKey){
+   if(candidate){
+     var key=candidate.section==null?String(index):String(candidate.section)+'-'+String(index);
+     return (store.surveys[candidate.id]?.multi||[]).includes(key);
+   }
+   return !!store.inlineChecks?.[genericKey];
+ }
+ function saveCheck(candidate,index,genericKey,checked){
+   if(candidate){
+     var st=ensureSurvey(candidate.id),key=candidate.section==null?String(index):String(candidate.section)+'-'+String(index);
+     var set=new Set(st.multi||[]);
+     checked?set.add(key):set.delete(key);
+     st.multi=[...set];
+   }else{
+     store.inlineChecks=store.inlineChecks||{};
+     store.inlineChecks[genericKey]=!!checked;
+   }
+   save();
+ }
+ function parseBoxElement(el){
+   if(!el||el.dataset.inlineChecksDone||el.querySelector('input,select,textarea'))return null;
+   var html=el.innerHTML||'';
+   if(html.indexOf('□')<0)return null;
+
+   // Rating rows such as "항목 □ □ □" are not multi-select checklists.
+   var text=el.textContent||'';
+   if(/(?:매우\s*그렇다|보통|아니다|자주|가끔|거의\s*없음|1점|2점|3점|4점|5점)/.test(text) && (text.match(/□/g)||[]).length>=2){
+     var after=text.split('□').slice(1).map(norm).filter(Boolean);
+     if(after.length===0)return null;
+   }
+
+   var parts=html.split('□');
+   if(parts.length<2)return null;
+   var prefixHtml=parts.shift();
+   var rawLabels=parts.map(function(part){
+     var box=document.createElement('div');box.innerHTML=part;
+     return norm(box.textContent||'');
+   }).filter(Boolean);
+   if(!rawLabels.length)return null;
+
+   var best=bestCandidate(rawLabels),labels=[],map=[];
+   if(best){
+     var c=best.candidate,cn=c.items.map(norm);
+     rawLabels.forEach(function(l){
+       var idx=cn.findIndex(function(x){return x===l||l.indexOf(x)===0||x.indexOf(l)===0;});
+       if(idx>=0){labels.push(c.items[idx]);map.push(idx);}
+     });
+     if(labels.length<2)return null;
+   }else{
+     // Unknown □ text is converted only when it clearly looks like a standalone choice list.
+     if(rawLabels.length<2||rawLabels.some(function(x){return x.length>90;}))return null;
+     labels=rawLabels;map=rawLabels.map(function(_,i){return i;});
+   }
+   return {prefixHtml:prefixHtml,labels:labels,map:map,candidate:best&&best.candidate};
+ }
+ function convertElement(el){
+   var p=parseBoxElement(el);if(!p)return false;
+   var prefix=(p.prefixHtml||'').trim();
+   var group='inline-'+((typeof currentLesson==='number'?currentLesson:'x'))+'-'+hash28((el.textContent||'')+'|'+p.labels.join('|'));
+   var grid=document.createElement('div');grid.className='inline-check-grid no-swipe';
+   p.labels.forEach(function(label,pos){
+     var idx=p.map[pos],genericKey=group+'-'+idx;
+     var lab=document.createElement('label');lab.className='inline-check-item no-swipe';
+     var input=document.createElement('input');input.type='checkbox';
+     input.checked=checkedFor(p.candidate,idx,genericKey);
+     input.setAttribute('aria-label',label);
+     input.addEventListener('change',function(){saveCheck(p.candidate,idx,genericKey,input.checked);});
+     var span=document.createElement('span');span.textContent=label;
+     lab.appendChild(input);lab.appendChild(span);grid.appendChild(lab);
+   });
+   el.innerHTML='';
+   if(prefix){
+     var ctx=document.createElement('div');ctx.className='inline-check-context';ctx.innerHTML=prefix;el.appendChild(ctx);
+   }
+   el.appendChild(grid);
+   el.dataset.inlineChecksDone='1';
+   return true;
+ }
+ function decorate(root){
+   if(!root||typeof role!=='undefined'&&role!=='student')return;
+   var selectors=['.source-line','.source-block>div','.key-callout','.actual-application','.v25-note-card p'];
+   var seen=new Set();
+   selectors.forEach(function(sel){
+     root.querySelectorAll(sel).forEach(function(el){
+       if(seen.has(el))return;seen.add(el);convertElement(el);
+     });
+   });
+   // A source-block can occasionally contain a flattened □ list with no child line wrapper.
+   root.querySelectorAll('.source-block').forEach(function(el){
+     if(!el.querySelector('.source-line')&&!el.querySelector('input'))convertElement(el);
+   });
+ }
+ function observe(id){
+   var root=document.getElementById(id);if(!root)return;
+   var queued=false;
+   var run=function(){queued=false;decorate(root);};
+   new MutationObserver(function(){
+     if(queued)return;queued=true;setTimeout(run,0);
+   }).observe(root,{childList:true,subtree:true});
+   decorate(root);
+ }
+ function boot(){observe('slideBody');observe('surveySlideBody');}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+})();
+</script>
 
 </body>
 </html>
