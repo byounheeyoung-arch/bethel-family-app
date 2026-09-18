@@ -398,16 +398,22 @@ function splitBlocks(raw){
  return raw.replace(/\f/g,'\n\n').split(/\n\s*\n+/).map(x=>x.trim()).filter(Boolean);
 }
 function splitLongBlock(block,max=520){
- if(block.length<=max)return[block];
+ // Preserve the PDF's meaningful line structure. Never flatten numbered/bulleted outlines.
  const lines=block.split('\n').map(x=>x.trim()).filter(Boolean),parts=[];let cur='';
+ const structural=x=>/^(?:\d+[.)]|[a-zA-Z][.)]|[-●*•○]|[①-⑩])\s*/.test(x);
  for(const line of lines){
-  const sentences=line.split(/(?<=[.!?。다])\s+/);
-  for(const s of sentences){
-   if((cur+' '+s).trim().length>max&&cur){parts.push(cur.trim());cur=s}
-   else cur=(cur+' '+s).trim();
+  if(structural(line)){
+   if(cur){parts.push(cur.trim());cur=''}
+   cur=line;
+   continue;
+  }
+  if(cur && (cur.length+1+line.length>max)){
+   parts.push(cur.trim());cur=line;
+  }else{
+   cur=cur?(cur+' '+line):line;
   }
  }
- if(cur)parts.push(cur);
+ if(cur)parts.push(cur.trim());
  return parts;
 }
 function tableLike(block){
