@@ -2725,6 +2725,231 @@ body.lesson-five .survey-item .choice span{padding:8px 6px;font-size:12px;line-h
  }
 })();
 </script>
+<style id="v31-global-hierarchy-style">
+/* v31 — 1~8강 공통 위계 + 5강 기준 행간
+   계층: 1. → 1) / A. → a) / i) → - 설명·근거
+   5강에서 사용하던 약 1.45~1.46 행간을 전체 본문에 통일 */
+#slideBody.hierarchy-all .source-block,
+#slideBody.hierarchy-all .source-line,
+#slideBody.hierarchy-all .source-number-line,
+#slideBody.hierarchy-all .source-heading,
+#slideBody.hierarchy-all .source-subheading,
+#slideBody.hierarchy-all .source-subsub,
+#slideBody.hierarchy-all .source-bullet,
+#slideBody.hierarchy-all .source-roman,
+#slideBody.hierarchy-all .key-callout,
+#slideBody.hierarchy-all .actual-application{
+  line-height:1.46!important;
+  letter-spacing:-0.01em;
+}
+
+/* 번호는 별도 열, 본문은 같은 시작선에 정렬 */
+#slideBody.hierarchy-all .g-row{
+  display:grid!important;
+  grid-template-columns:34px minmax(0,1fr)!important;
+  column-gap:2px!important;
+  width:100%!important;
+  box-sizing:border-box!important;
+  border-left:0!important;
+  padding-left:var(--g-pad,0px)!important;
+  margin-left:0!important;
+  margin-right:0!important;
+  line-height:1.46!important;
+}
+#slideBody.hierarchy-all .g-row>.num-label{
+  display:block!important;
+  min-width:0!important;
+  margin:0!important;
+  padding:0!important;
+  text-align:left!important;
+}
+
+/* 선택적 강조: 큰 위계만 굵게 */
+#slideBody.hierarchy-all .g-main{
+  --g-pad:0px;
+  margin-top:15px!important;
+  margin-bottom:6px!important;
+  font-weight:720!important;
+  color:#14291b!important;
+}
+#slideBody.hierarchy-all .g-main>.num-label{font-weight:850!important}
+
+#slideBody.hierarchy-all .g-section{
+  --g-pad:14px;
+  margin-top:9px!important;
+  margin-bottom:4px!important;
+  font-weight:600!important;
+  color:#203c29!important;
+}
+#slideBody.hierarchy-all .g-section>.num-label{font-weight:780!important}
+
+#slideBody.hierarchy-all .g-item{
+  --g-pad:30px;
+  margin-top:4px!important;
+  margin-bottom:3px!important;
+  font-weight:400!important;
+  color:inherit!important;
+}
+#slideBody.hierarchy-all .g-item>.num-label{font-weight:720!important}
+
+#slideBody.hierarchy-all .g-detail{
+  --g-pad:46px;
+  margin-top:2px!important;
+  margin-bottom:2px!important;
+  font-weight:400!important;
+  color:#334b39!important;
+}
+#slideBody.hierarchy-all .g-detail>.num-label{font-weight:700!important}
+
+/* '-' 표식도 위계로 살린다. 현재 문맥보다 한 단계 안쪽으로 배치 */
+#slideBody.hierarchy-all .source-bullet.g-bullet{
+  position:relative!important;
+  display:block!important;
+  margin:2px 0 3px!important;
+  padding-left:calc(var(--g-bullet-pad,34px) + 18px)!important;
+  font-weight:400!important;
+  line-height:1.46!important;
+}
+#slideBody.hierarchy-all .source-bullet.g-bullet:before{
+  content:"–"!important;
+  left:var(--g-bullet-pad,34px)!important;
+  top:0!important;
+  color:var(--accent)!important;
+  font-weight:760!important;
+}
+
+/* 번호·불릿 뒤 이어지는 설명문도 같은 본문 열에 맞춘다 */
+#slideBody.hierarchy-all .g-cont{
+  display:block!important;
+  margin:0 0 4px!important;
+  padding-left:var(--g-cont-pad,34px)!important;
+  line-height:1.46!important;
+  font-weight:400!important;
+  border-left:0!important;
+}
+
+/* 의미 제목은 위계로 보이되 과도하게 굵지 않게 */
+#slideBody.hierarchy-all .source-heading.g-semantic{
+  font-weight:620!important;
+  margin-top:10px!important;
+  margin-bottom:4px!important;
+  line-height:1.46!important;
+}
+
+/* 설문/질문/체크도 5강의 1.45 전후 호흡으로 통일 */
+.question-card label,
+.survey-item>strong,
+.checklist-prompt,
+.inline-check-item,
+.choice span,
+.checklist-intro,
+.checklist-note{
+  line-height:1.46!important;
+  letter-spacing:-0.01em;
+}
+
+@media(max-width:560px){
+  #slideBody.hierarchy-all .g-row{
+    grid-template-columns:30px minmax(0,1fr)!important;
+  }
+  #slideBody.hierarchy-all .g-section{--g-pad:8px}
+  #slideBody.hierarchy-all .g-item{--g-pad:18px}
+  #slideBody.hierarchy-all .g-detail{--g-pad:30px}
+}
+</style>
+<script id="v31-global-hierarchy-script">
+(function(){
+ 'use strict';
+
+ function labelKind(label){
+   var x=String(label||'').trim();
+   if(/^\d+\.$/.test(x)) return 'main';
+   if(/^\d+\)$/.test(x)) return 'section';
+   if(/^[A-H][.)]$/.test(x)) return 'section';
+   if(/^(?:i|ii|iii|iv|v|vi|vii|viii|ix|x)\)$/i.test(x)) return 'detail';
+   if(/^[a-z][.)]$/.test(x)) return 'item';
+   return '';
+ }
+
+ function levelOf(kind){
+   return kind==='main'?1:kind==='section'?2:kind==='item'?3:kind==='detail'?4:1;
+ }
+
+ function textIndent(level){
+   return ({1:34,2:50,3:66,4:82})[level]||34;
+ }
+
+ function bulletIndent(level){
+   return ({1:34,2:50,3:66,4:82})[level]||34;
+ }
+
+ function decorateBlock(block){
+   if(!block)return;
+
+   var children=[].slice.call(block.children);
+   var currentLevel=1;
+
+   children.forEach(function(el){
+     if(el.matches('.stable-table,.stable-cards,.v25-table,.check-grid,.inline-check-grid,.peace-grid-v22,.lesson-youtube-frame')) return;
+     if(el.closest('.stable-table,.stable-cards,.v25-table,.check-grid,.inline-check-grid,.peace-grid-v22')) return;
+
+     el.classList.remove('g-row','g-main','g-section','g-item','g-detail','g-bullet','g-cont','g-semantic');
+
+     var num=el.querySelector(':scope > .num-label');
+     if(num){
+       var kind=labelKind(num.textContent);
+       if(kind){
+         currentLevel=levelOf(kind);
+         el.classList.add('g-row','g-'+kind);
+         return;
+       }
+     }
+
+     if(el.classList.contains('source-bullet')){
+       el.classList.add('g-bullet');
+       el.style.setProperty('--g-bullet-pad',bulletIndent(currentLevel)+'px');
+       return;
+     }
+
+     if(el.classList.contains('source-heading')){
+       el.classList.add('g-semantic');
+       currentLevel=Math.max(1,Math.min(currentLevel,2));
+       return;
+     }
+
+     if(el.matches('.source-line,.source-subheading,.source-subsub,.source-roman')){
+       el.classList.add('g-cont');
+       el.style.setProperty('--g-cont-pad',textIndent(currentLevel)+'px');
+     }
+   });
+ }
+
+ function apply(){
+   var root=document.getElementById('slideBody');
+   if(!root)return;
+   root.classList.add('hierarchy-all');
+   root.querySelectorAll('.source-block').forEach(decorateBlock);
+ }
+
+ function boot(){
+   var root=document.getElementById('slideBody');
+   if(!root)return;
+   new MutationObserver(function(){setTimeout(apply,0);}).observe(root,{childList:true,subtree:true});
+   apply();
+ }
+
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);
+ else boot();
+
+ var prior=window.renderSlide;
+ if(typeof prior==='function'){
+   window.renderSlide=function(){
+     prior();
+     setTimeout(apply,0);
+   };
+ }
+})();
+</script>
 
 </body>
 </html>
