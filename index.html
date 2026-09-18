@@ -69,13 +69,14 @@ h3{font-size:16px;margin-bottom:8px}
 .swipe-guide{text-align:center;font-size:12px;color:var(--muted);margin:14px 0 0;line-height:1.5}
 
 /* source content */
-.source-block{font-size:14px;line-height:1.58;word-break:keep-all;overflow-wrap:anywhere}
+.source-block{font-size:14px;line-height:1.52;word-break:keep-all;overflow-wrap:anywhere}
 .source-block>.source-line{display:block;width:100%;clear:both}
-.source-line{margin:0 0 5px}
-.source-heading{font-weight:800;font-size:1.03em;color:#14291b;border-left:4px solid var(--accent);padding-left:9px;margin:11px 0 5px}
-.source-subheading{font-weight:700;color:#203c29;padding-left:18px;margin:8px 0 4px}
-.source-subsub{font-weight:600;color:#334b39;padding-left:30px;margin:5px 0 3px}
-.source-bullet{padding-left:18px;position:relative;font-weight:400;margin-bottom:4px}
+.source-line{margin:0 0 3px}
+.source-heading{font-weight:800;font-size:1.03em;color:#14291b;border-left:4px solid var(--accent);padding-left:9px;margin:9px 0 4px}
+.source-subheading{font-weight:700;color:#203c29;padding-left:16px;margin:6px 0 3px}
+.source-subsub{font-weight:600;color:#334b39;padding-left:28px;margin:4px 0 2px}
+.source-bullet{padding-left:18px;position:relative;font-weight:400;margin-bottom:2px}
+.source-roman{font-weight:400;color:#334b39;padding-left:42px;margin:2px 0}
 .source-line{font-weight:400}
 .source-block .pdf-bold{font-weight:700}
 .source-bullet:before{content:"•";position:absolute;left:2px;color:var(--accent);font-weight:900}
@@ -397,21 +398,17 @@ function stripInteractiveBlocks(raw,li,r){
 function splitBlocks(raw){
  return raw.replace(/\f/g,'\n\n').split(/\n\s*\n+/).map(x=>x.trim()).filter(Boolean);
 }
-function splitLongBlock(block,max=520){
- // Preserve the PDF's meaningful line structure. Never flatten numbered/bulleted outlines.
- const lines=block.split('\n').map(x=>x.trim()).filter(Boolean),parts=[];let cur='';
- const structural=x=>/^(?:\d+[.)]|[a-zA-Z][.)]|[-●*•○]|[①-⑩])\s*/.test(x);
+function splitLongBlock(block,max=620){
+ const lines=block.replace(/\f/g,'\n').split('\n').map(x=>x.trim()).filter(Boolean),parts=[];let cur='';
+ const structural=x=>/^(?:\d+[.,)]|[a-h][.)]|(?:i|ii|iii|iv|v|vi|vii|viii|ix|x)\)|[-●*•○]|[①-⑩])\s*/i.test(x);
  for(const line of lines){
   if(structural(line)){
    if(cur){parts.push(cur.trim());cur=''}
    cur=line;
    continue;
   }
-  if(cur && (cur.length+1+line.length>max)){
-   parts.push(cur.trim());cur=line;
-  }else{
-   cur=cur?(cur+' '+line):line;
-  }
+  if(cur && cur.length+1+line.length>max){parts.push(cur.trim());cur=line}
+  else cur=cur?(cur+' '+line):line;
  }
  if(cur)parts.push(cur.trim());
  return parts;
@@ -471,22 +468,19 @@ function normalizeOutlineBreaks(block){
   .replace(/([.!?])\s+(?=(?:\d+\)|[a-zA-Z][.)])\s)/g,'$1\n');
 }
 function formatSource(block){
- let t=String(block||'').replace(/\r/g,' ').replace(/\n+/g,' ').replace(/\s+/g,' ').trim();
- // Convert flattened PDF/OCR outline markers into explicit structural tokens.
- t=t.replace(/\s+(?=(?:\d+\)|[a-zA-Z][.)])\s*)/g,'@@BR@@');
- t=t.replace(/\s+-\s+(?=\S)/g,'@@BUL@@');
- const parts=t.split(/(@@BR@@|@@BUL@@)/).filter(Boolean);
- let mode='normal',out='';
- for(const part of parts){
-  if(part==='@@BR@@'){mode='outline';continue}
-  if(part==='@@BUL@@'){mode='bullet';continue}
-  const x=part.trim();if(!x)continue;
+ let t=String(block||'').replace(/\r/g,' ').replace(/\f/g,'\n').replace(/\n+/g,'\n').trim();
+ // Normalize flattened OCR/PDF outlines at every supported hierarchy level.
+ t=t.replace(/\s+(?=(?:\d+\)|[a-h][.)]|(?:i|ii|iii|iv|v|vi|vii|viii|ix|x)\))\s*)/gi,'\n');
+ t=t.replace(/\s+-\s+(?=\S)/g,'\n- ');
+ const lines=t.split(/\n+/).map(x=>x.trim()).filter(Boolean);
+ let out='';
+ for(const x of lines){
   if(/^\d+\)\s*/.test(x)) out+=`<div class="source-line source-subheading">${formatInline(x)}</div>`;
-  else if(/^[a-zA-Z][.)]\s*/.test(x)) out+=`<div class="source-line source-subsub">${formatInline(x)}</div>`;
+  else if(/^(?:i|ii|iii|iv|v|vi|vii|viii|ix|x)\)\s*/i.test(x)) out+=`<div class="source-line source-roman">${formatInline(x)}</div>`;
+  else if(/^[a-h][.)]\s*/i.test(x)) out+=`<div class="source-line source-subsub">${formatInline(x)}</div>`;
   else if(/^\d+[.,]\s*/.test(x)) out+=`<div class="source-line source-heading">${formatInline(x)}</div>`;
-  else if(mode==='bullet') out+=`<div class="source-line source-bullet">${formatInline(x)}</div>`;
+  else if(/^[-●*•○]\s*/.test(x)) out+=`<div class="source-line source-bullet">${formatInline(x.replace(/^[-●*•○]\s*/,''))}</div>`;
   else out+=`<div class="source-line">${formatInline(x)}</div>`;
-  mode='normal';
  }
  return out;
 }
