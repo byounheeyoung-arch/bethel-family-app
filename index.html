@@ -505,13 +505,29 @@ function normalizeOutlineBreaks(block){
   /* keep colon-led explanation readable when several clauses were flattened */
   .replace(/([.!?])\s+(?=(?:\d+\)|[a-zA-Z][.)])\s)/g,'$1\n');
 }
-function renderActualApplication(block){
+function renderGenericSource(block){
+ let t=String(block||'').replace(/\r/g,' ').replace(/\f/g,'\n');
+ t=t.replace(/[ \t]+(?=((?:i|ii|iii|iv|v|vi|vii|viii|ix|x)\))\s+)/gi,'\n');
+ t=t.replace(/[ \t]+(?=(\d+\))\s+)/g,'\n');
+ t=t.replace(/[ \t]+(?=([a-h][.)])\s+)/gi,'\n');
+ t=t.replace(/[ \t]+-[ \t]+(?=\S)/g,'\n- ');
+ return t.split(/\n+/).map(x=>x.trim()).filter(Boolean).map(x=>{
+  if(/^\d+\)\s*/.test(x))return `<div class="source-line source-subheading">${formatInline(x)}</div>`;
+  if(/^(?:iii|viii|vii|vi|iv|ii|ix|x|v|i)\)\s*/i.test(x))return `<div class="source-line source-roman">${formatInline(x)}</div>`;
+  if(/^[a-h][.)]\s*/i.test(x))return `<div class="source-line source-subsub">${formatInline(x)}</div>`;
+  if(/^\d+[.,]\s*/.test(x))return `<div class="source-line source-heading">${formatInline(x)}</div>`;
+  if(/^[-●*•○]\s*/.test(x))return `<div class="source-line source-bullet">${formatInline(x.replace(/^[-●*•○]\s*/,''))}</div>`;
+  return `<div class="source-line">${formatInline(x)}</div>`;
+ }).join('');
+}
+function formatSource(block){
+ const raw=String(block||'');
  const marker='2) 실제적용';
- if(!block.includes(marker))return null;
- const start=block.indexOf(marker);
- const endCandidates=['\n6. ','\n3. ','\n4. ','\n5. ','\n7. ','\n8. '].map(m=>block.indexOf(m,start+marker.length)).filter(i=>i>start);
- const end=endCandidates.length?Math.min(...endCandidates):block.length;
- const before=block.slice(0,start),section=block.slice(start,end),after=block.slice(end);
+ const start=raw.indexOf(marker);
+ if(start<0)return renderGenericSource(raw);
+ const endCandidates=['\n6. ','\n3. ','\n4. ','\n5. ','\n7. ','\n8. '].map(m=>raw.indexOf(m,start+marker.length)).filter(i=>i>start);
+ const stop=endCandidates.length?Math.min(...endCandidates):raw.length;
+ const before=raw.slice(0,start),section=raw.slice(start,stop),after=raw.slice(stop);
  const lines=section.replace(/\f/g,'\n').split(/\n+/).map(x=>x.trim()).filter(Boolean);
  let html='<div class="actual-application">';
  for(const x of lines){
@@ -521,28 +537,7 @@ function renderActualApplication(block){
   else html+=`<div class="source-line">${formatInline(x)}</div>`;
  }
  html+='</div>';
- return {before,html,after};
-}
-function formatSource(block){
- const actual=renderActualApplication(String(block||''));
- if(actual)return (actual.before?formatSource(actual.before):'')+actual.html+(actual.after?formatSource(actual.after):'');
- let t=String(block||'').replace(/\r/g,' ').replace(/\f/g,'\n');
- // Protect roman numerals first: i/ii/iii were previously swallowed by the generic a-h rule.
- t=t.replace(/[ \t]+(?=((?:i|ii|iii|iv|v|vi|vii|viii|ix|x)\))\s+)/gi,'\n');
- t=t.replace(/[ \t]+(?=(\d+\))\s+)/g,'\n');
- t=t.replace(/[ \t]+(?=([a-h][.)])\s+)/gi,'\n');
- t=t.replace(/[ \t]+-[ \t]+(?=\S)/g,'\n- ');
- const lines=t.split(/\n+/).map(x=>x.trim()).filter(Boolean);
- let out='';
- for(const x of lines){
-  if(/^\d+\)\s*/.test(x)) out+=`<div class="source-line source-subheading">${formatInline(x)}</div>`;
-  else if(/^(?:iii|viii|vii|vi|iv|ii|ix|x|v|i)\)\s*/i.test(x)) out+=`<div class="source-line source-roman">${formatInline(x)}</div>`;
-  else if(/^[a-h][.)]\s*/i.test(x)) out+=`<div class="source-line source-subsub">${formatInline(x)}</div>`;
-  else if(/^\d+[.,]\s*/.test(x)) out+=`<div class="source-line source-heading">${formatInline(x)}</div>`;
-  else if(/^[-●*•○]\s*/.test(x)) out+=`<div class="source-line source-bullet">${formatInline(x.replace(/^[-●*•○]\s*/,''))}</div>`;
-  else out+=`<div class="source-line">${formatInline(x)}</div>`;
- }
- return out;
+ return renderGenericSource(before)+html+renderGenericSource(after);
 }
 function formatInline(text){
  let s=esc(text);
