@@ -2236,30 +2236,45 @@ body.lesson-five .survey-item .choice span{padding:8px 6px;font-size:12px;line-h
 </script>
 
 <script>
-window.bethelEnterRole=function(r){
- try{
-  window.role=r;
-  var rolePage=document.getElementById('rolePage');
-  var homePage=document.getElementById('homePage');
-  var roleSwitch=document.getElementById('roleSwitch');
-  var bottomNav=document.getElementById('bottomNav');
-  var stateNav=document.getElementById('stateNav');
-  if(rolePage)rolePage.classList.add('hidden');
-  if(roleSwitch)roleSwitch.classList.remove('hidden');
-  if(bottomNav)bottomNav.classList.remove('hidden');
-  if(stateNav)stateNav.classList.toggle('hidden',r==='teacher');
-  if(typeof window.setRole==='function'){ window.setRole(r); return; }
-  if(homePage)homePage.classList.remove('hidden');
- }catch(e){
-  var rp=document.getElementById('rolePage'), hp=document.getElementById('homePage');
-  if(rp)rp.style.display='none'; if(hp){hp.classList.remove('hidden');hp.style.display='block';}
+(function(){
+ function enterRoleSafe(r){
+  try{
+   var rolePage=document.getElementById('rolePage');
+   var homePage=document.getElementById('homePage');
+   var lessonPage=document.getElementById('lessonPage');
+   var surveyPage=document.getElementById('surveyPage');
+   var statePage=document.getElementById('statePage');
+   var roleSwitch=document.getElementById('roleSwitch');
+   var bottomNav=document.getElementById('bottomNav');
+   var stateNav=document.getElementById('stateNav');
+   if(rolePage)rolePage.classList.add('hidden');
+   [lessonPage,surveyPage,statePage].forEach(function(el){if(el)el.classList.add('hidden')});
+   if(homePage)homePage.classList.remove('hidden');
+   if(roleSwitch)roleSwitch.classList.remove('hidden');
+   if(bottomNav)bottomNav.classList.remove('hidden');
+   if(stateNav)stateNav.classList.toggle('hidden',r==='teacher');
+   var badge=document.getElementById('roleBadge');
+   if(badge)badge.textContent=r==='student'?'학습자용':'강의자용';
+   var hero=document.getElementById('homeHero');
+   if(hero)hero.innerHTML=r==='student'
+    ?'<span class="badge">학습자용</span><h2 style="margin-top:9px">교재의 강조 답을 밑줄로 확인하며 기록합니다</h2><p class="muted">빈칸·질문·검사와 8주 강의를 이용할 수 있습니다.</p>'
+    :'<span class="badge">강의자용</span><h2 style="margin-top:9px">교수용 원문과 진행 내용을 확인합니다</h2><p class="muted">8주 강의 자료를 확인할 수 있습니다.</p>';
+   var grid=document.getElementById('lessonGrid');
+   if(grid && window.DATA){
+    grid.innerHTML=DATA.titles.map(function(t,i){return '<button class="lesson-card" data-open="'+i+'"><span class="num">'+(i+1)+'강 · '+DATA.refs[i]+'</span><strong>'+t+'</strong><small>슬라이드 열기 →</small></button>'}).join('');
+   }
+   // Keep lexical app role in sync by invoking setRole only after the visible home is already rendered.
+   try{ if(typeof setRole==='function') setRole(r); }catch(e){}
+  }catch(e){}
  }
-};
-document.addEventListener('DOMContentLoaded',function(){
- document.querySelectorAll('[data-role]').forEach(function(b){
-  b.onclick=function(ev){ev.preventDefault();window.bethelEnterRole(b.getAttribute('data-role'));};
- });
-});
+ window.bethelEnterRole=enterRoleSafe;
+ function bind(){
+  document.querySelectorAll('[data-role]').forEach(function(b){
+   b.onclick=function(ev){ev.preventDefault();ev.stopPropagation();enterRoleSafe(b.getAttribute('data-role'));};
+  });
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind);else bind();
+})();
 </script>
 </body>
 </html>
