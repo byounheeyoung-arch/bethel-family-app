@@ -465,22 +465,24 @@ function normalizeOutlineBreaks(block){
   .replace(/([.!?])\s+(?=(?:\d+\)|[a-zA-Z][.)])\s)/g,'$1\n');
 }
 function formatSource(block){
- const normalized=normalizeOutlineBreaks(block);
- const tokenized=normalized
-   .replace(/\s+(?=(?:\d+\)|[a-zA-Z][.)])\s*)/g,'\n')
-   .replace(/\s+-\s+/g,'\n- ');
- const lines=tokenized.split(/\n+/);
- return lines.map(line=>{
-  const t=line.trim();if(!t)return'';
-  /* IMPORTANT: 1) must be tested before generic 1. */
-  if(/^\d+\)\s*/.test(t))return `<div class="source-line source-subheading">${formatInline(t)}</div>`;
-  if(/^[a-zA-Z][.)]\s*/.test(t))return `<div class="source-line source-subsub">${formatInline(t)}</div>`;
-  if(/^\d+\.\s*/.test(t))return `<div class="source-line source-heading">${formatInline(t)}</div>`;
-  if(/^(?:[①-⑩]|<[^>]+>|핵심|결론|본문|정의|결과|예상|코칭|적용|미션)/.test(t))return `<div class="source-line source-heading">${formatInline(t)}</div>`;
-  if(/^[-●*•○]/.test(t))return `<div class="source-line source-bullet">${formatInline(t.replace(/^[-●*•○]\s*/,''))}</div>`;
-  if(/^(?:“|').*(?:”|')$/.test(t))return `<div class="key-callout">${formatInline(t)}</div>`;
-  return `<div class="source-line">${formatInline(t)}</div>`;
- }).join('');
+ let t=String(block||'').replace(/\r/g,' ').replace(/\n+/g,' ').replace(/\s+/g,' ').trim();
+ // Convert flattened PDF/OCR outline markers into explicit structural tokens.
+ t=t.replace(/\s+(?=(?:\d+\)|[a-zA-Z][.)])\s*)/g,'@@BR@@');
+ t=t.replace(/\s+-\s+(?=\S)/g,'@@BUL@@');
+ const parts=t.split(/(@@BR@@|@@BUL@@)/).filter(Boolean);
+ let mode='normal',out='';
+ for(const part of parts){
+  if(part==='@@BR@@'){mode='outline';continue}
+  if(part==='@@BUL@@'){mode='bullet';continue}
+  const x=part.trim();if(!x)continue;
+  if(/^\d+\)\s*/.test(x)) out+=`<div class="source-line source-subheading">${formatInline(x)}</div>`;
+  else if(/^[a-zA-Z][.)]\s*/.test(x)) out+=`<div class="source-line source-subsub">${formatInline(x)}</div>`;
+  else if(/^\d+\.\s*/.test(x)) out+=`<div class="source-line source-heading">${formatInline(x)}</div>`;
+  else if(mode==='bullet') out+=`<div class="source-line source-bullet">${formatInline(x)}</div>`;
+  else out+=`<div class="source-line">${formatInline(x)}</div>`;
+  mode='normal';
+ }
+ return out;
 }
 function formatInline(text){
  let s=esc(text);
