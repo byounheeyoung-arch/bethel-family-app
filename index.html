@@ -70,6 +70,7 @@ h3{font-size:16px;margin-bottom:8px}
 
 /* source content */
 .source-block{font-size:14px;line-height:1.72;word-break:keep-all;overflow-wrap:anywhere}
+.source-block>.source-line{display:block;width:100%;clear:both}
 .source-line{margin:0 0 10px}
 .source-heading{font-weight:850;font-size:1.04em;color:#14291b;border-left:4px solid var(--accent);padding-left:9px;margin:16px 0 8px}
 .source-subheading{font-weight:760;color:#203c29;padding-left:20px;margin:12px 0 7px}
@@ -464,15 +465,21 @@ function normalizeOutlineBreaks(block){
   .replace(/([.!?])\s+(?=(?:\d+\)|[a-zA-Z][.)])\s)/g,'$1\n');
 }
 function formatSource(block){
- return normalizeOutlineBreaks(block).split('\n').map(line=>{
+ const normalized=normalizeOutlineBreaks(block);
+ const tokenized=normalized
+   .replace(/\s+(?=(?:\d+\)|[a-zA-Z][.)])\s*)/g,'\n')
+   .replace(/\s+-\s+/g,'\n- ');
+ const lines=tokenized.split(/\n+/);
+ return lines.map(line=>{
   const t=line.trim();if(!t)return'';
-  if(/^\d+\.\s*/.test(t))return `<p class="source-line source-heading">${formatInline(t)}</p>`;
-  if(/^\d+\)\s*/.test(t))return `<p class="source-line source-subheading">${formatInline(t)}</p>`;
-  if(/^[a-zA-Z][.)]\s*/.test(t))return `<p class="source-line source-subsub">${formatInline(t)}</p>`;
-  if(/^(?:[①-⑩]|<[^>]+>|핵심|결론|본문|정의|결과|예상|코칭|적용|미션)/.test(t))return `<p class="source-line source-heading">${formatInline(t)}</p>`;
-  if(/^[-●*•○]/.test(t))return `<p class="source-line source-bullet">${formatInline(t.replace(/^[-●*•○]\s*/,''))}</p>`;
+  /* IMPORTANT: 1) must be tested before generic 1. */
+  if(/^\d+\)\s*/.test(t))return `<div class="source-line source-subheading">${formatInline(t)}</div>`;
+  if(/^[a-zA-Z][.)]\s*/.test(t))return `<div class="source-line source-subsub">${formatInline(t)}</div>`;
+  if(/^\d+\.\s*/.test(t))return `<div class="source-line source-heading">${formatInline(t)}</div>`;
+  if(/^(?:[①-⑩]|<[^>]+>|핵심|결론|본문|정의|결과|예상|코칭|적용|미션)/.test(t))return `<div class="source-line source-heading">${formatInline(t)}</div>`;
+  if(/^[-●*•○]/.test(t))return `<div class="source-line source-bullet">${formatInline(t.replace(/^[-●*•○]\s*/,''))}</div>`;
   if(/^(?:“|').*(?:”|')$/.test(t))return `<div class="key-callout">${formatInline(t)}</div>`;
-  return `<p class="source-line">${formatInline(t)}</p>`;
+  return `<div class="source-line">${formatInline(t)}</div>`;
  }).join('');
 }
 function formatInline(text){
