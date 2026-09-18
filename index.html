@@ -2235,5 +2235,31 @@ body.lesson-five .survey-item .choice span{padding:8px 6px;font-size:12px;line-h
 })();
 </script>
 
+<script>
+window.bethelEnterRole=function(r){
+ try{
+  window.role=r;
+  var rolePage=document.getElementById('rolePage');
+  var homePage=document.getElementById('homePage');
+  var roleSwitch=document.getElementById('roleSwitch');
+  var bottomNav=document.getElementById('bottomNav');
+  var stateNav=document.getElementById('stateNav');
+  if(rolePage)rolePage.classList.add('hidden');
+  if(roleSwitch)roleSwitch.classList.remove('hidden');
+  if(bottomNav)bottomNav.classList.remove('hidden');
+  if(stateNav)stateNav.classList.toggle('hidden',r==='teacher');
+  if(typeof window.setRole==='function'){ window.setRole(r); return; }
+  if(homePage)homePage.classList.remove('hidden');
+ }catch(e){
+  var rp=document.getElementById('rolePage'), hp=document.getElementById('homePage');
+  if(rp)rp.style.display='none'; if(hp){hp.classList.remove('hidden');hp.style.display='block';}
+ }
+};
+document.addEventListener('DOMContentLoaded',function(){
+ document.querySelectorAll('[data-role]').forEach(function(b){
+  b.onclick=function(ev){ev.preventDefault();window.bethelEnterRole(b.getAttribute('data-role'));};
+ });
+});
+</script>
 </body>
 </html>
