@@ -453,10 +453,15 @@ function guessTitle(block){
  const short=first.replace(/^[-●*]\s*/,'').slice(0,28);
  return short.length?short:'교재 원문';
 }
+function normalizeOutlineBreaks(block){
+ return block
+  .replace(/\s+(?=(?:\d+\)|[a-zA-Z][.)])\s+)/g,'\n')
+  .replace(/\s+-\s+(?=[가-힣A-Za-z“‘])/g,'\n- ');
+}
 function formatSource(block){
- return block.split('\n').map(line=>{
+ return normalizeOutlineBreaks(block).split('\n').map(line=>{
   const t=line.trim();if(!t)return'';
-  if(/^\d+[.)]\s*/.test(t))return `<p class="source-line source-heading">${formatInline(t)}</p>`;
+  if(/^\d+\.\s*/.test(t))return `<p class="source-line source-heading">${formatInline(t)}</p>`;
   if(/^\d+\)\s*/.test(t))return `<p class="source-line source-subheading">${formatInline(t)}</p>`;
   if(/^[a-zA-Z][.)]\s*/.test(t))return `<p class="source-line source-subsub">${formatInline(t)}</p>`;
   if(/^(?:[①-⑩]|<[^>]+>|핵심|결론|본문|정의|결과|예상|코칭|적용|미션)/.test(t))return `<p class="source-line source-heading">${formatInline(t)}</p>`;
