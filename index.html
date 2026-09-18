@@ -2240,5 +2240,84 @@ body.lesson-five .survey-item .choice span{padding:8px 6px;font-size:12px;line-h
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind);else bind();
 })();
 </script>
+<script id="runtime-stability-guard-20260918">
+(function(){
+  'use strict';
+  function q(sel){ return document.querySelector(sel); }
+  function qa(sel){ return Array.prototype.slice.call(document.querySelectorAll(sel)); }
+  function escText(v){ return String(v==null?'':v).replace(/[&<>"']/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m];}); }
+
+  function hydrateLessonGrid(){
+    var grid=q('#lessonGrid');
+    if(!grid || !window.DATA || !Array.isArray(DATA.titles)) return;
+    if(!grid.querySelector('[data-open]')){
+      grid.innerHTML=DATA.titles.map(function(t,i){
+        return '<button class="lesson-card" data-open="'+i+'" type="button"><span class="num">'+(i+1)+'강 · '+escText(DATA.refs&&DATA.refs[i]||'')+'</span><strong>'+escText(t)+'</strong><small>슬라이드 열기 →</small></button>';
+      }).join('');
+    }
+    qa('#lessonGrid [data-open]').forEach(function(btn){
+      btn.onclick=function(ev){
+        ev.preventDefault();
+        var i=Number(btn.getAttribute('data-open'))||0;
+        try{
+          if(typeof openLesson==='function'){ openLesson(i); return; }
+        }catch(e){}
+        try{
+          window.currentLesson=i;
+          if(typeof showPage==='function') showPage('lesson');
+          if(typeof renderLesson==='function') renderLesson();
+        }catch(e){}
+      };
+    });
+  }
+
+  function bindRoleButtons(){
+    qa('[data-role]').forEach(function(btn){
+      btn.onclick=function(ev){
+        ev.preventDefault();
+        var r=btn.getAttribute('data-role');
+        try{
+          if(typeof setRole==='function') setRole(r);
+          else if(typeof window.bethelEnterRole==='function') window.bethelEnterRole(r);
+        }catch(e){
+          try{ if(typeof window.bethelEnterRole==='function') window.bethelEnterRole(r); }catch(_){}
+        }
+        setTimeout(hydrateLessonGrid,0);
+      };
+    });
+  }
+
+  function bindBottomNav(){
+    qa('#bottomNav [data-page]').forEach(function(btn){
+      btn.onclick=function(ev){
+        ev.preventDefault();
+        var p=btn.getAttribute('data-page');
+        try{
+          if(p==='lesson' && typeof store!=='undefined') currentLesson=store.lastLesson||0;
+          if(typeof showPage==='function') showPage(p);
+        }catch(e){}
+        if(p==='home') setTimeout(hydrateLessonGrid,0);
+      };
+    });
+  }
+
+  function boot(){
+    bindRoleButtons();
+    bindBottomNav();
+    hydrateLessonGrid();
+    var cont=q('#continueBtn');
+    if(cont){
+      cont.onclick=function(ev){
+        ev.preventDefault();
+        try{ if(typeof openLesson==='function') openLesson((typeof store!=='undefined'&&store.lastLesson)||0); }catch(e){}
+      };
+    }
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot);
+  else boot();
+  window.addEventListener('load',function(){ setTimeout(boot,0); });
+})();
+</script>
+
 </body>
 </html>
