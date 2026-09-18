@@ -2601,6 +2601,130 @@ body.lesson-five .survey-item .choice span{padding:8px 6px;font-size:12px;line-h
  }
 })();
 </script>
+<style id="v30-selective-emphasis-style">
+/* v30 — 전체 타이포그래피 원칙:
+   1. / 큰 제목만 확실히 강조
+   1) / A. 같은 중간 제목은 중간 강조
+   a) / i) / 일반 질문·설명은 보통 굵기
+   실제 핵심어는 원문의 strong/pdf-bold만 강조 */
+.source-block{font-weight:400}
+.source-line{font-weight:400!important}
+.source-line.source-heading{font-weight:720!important}
+.source-subheading{font-weight:620!important}
+.source-subsub{font-weight:500!important}
+.source-number-line{
+  font-weight:400!important;
+  line-height:1.64!important;
+}
+.source-number-line .num-label{
+  font-weight:780!important;
+}
+.source-number-line.emphasis-main{
+  font-weight:720!important;
+}
+.source-number-line.emphasis-section{
+  font-weight:620!important;
+}
+.source-number-line.emphasis-item,
+.source-number-line.emphasis-detail{
+  font-weight:400!important;
+}
+.source-number-line.emphasis-main .num-label{font-weight:850!important}
+.source-number-line.emphasis-section .num-label{font-weight:780!important}
+.source-number-line.emphasis-item .num-label,
+.source-number-line.emphasis-detail .num-label{font-weight:720!important}
+
+/* 6~8강 계층 정렬에서도 같은 굵기 원칙을 사용 */
+#slideBody.hierarchy-678 .h-row{font-weight:400!important}
+#slideBody.hierarchy-678 .h-row.h1{font-weight:720!important}
+#slideBody.hierarchy-678 .h-row.h2{font-weight:520!important}
+#slideBody.hierarchy-678 .h-row.h3,
+#slideBody.hierarchy-678 .h-row.h4{font-weight:400!important}
+#slideBody.hierarchy-678 .h-row.emphasis-section{font-weight:620!important}
+#slideBody.hierarchy-678 .h-row.emphasis-item,
+#slideBody.hierarchy-678 .h-row.emphasis-detail{font-weight:400!important}
+#slideBody.hierarchy-678 .h-row>.num-label{font-weight:760!important}
+#slideBody.hierarchy-678 .h-row.emphasis-main>.num-label{font-weight:850!important}
+
+/* 질문은 질문 전체를 검게 덩어리로 만들지 않음 */
+.question-card label{
+  font-weight:500!important;
+  line-height:1.62!important;
+}
+.question-card label .num-label{font-weight:780!important}
+.survey-item>strong{
+  font-weight:540!important;
+  line-height:1.55!important;
+}
+.checklist-prompt{font-weight:500!important}
+.inline-check-item{font-weight:400!important}
+.inline-check-item:has(input:checked){font-weight:620!important}
+.choice:has(input:checked){font-weight:620!important}
+
+/* 실제로 지정된 핵심어는 분명하게 남김 */
+.source-block .pdf-bold,
+.source-block strong,
+.key-callout strong,
+.teacher-answer strong{font-weight:720!important}
+.pdf-bold{
+  font-weight:720!important;
+  background:linear-gradient(transparent 66%,#dce8d8 66%)!important;
+}
+
+/* 제목-본문 사이 호흡을 통일 */
+.source-number-line.emphasis-main{margin-top:15px!important;margin-bottom:7px!important}
+.source-number-line.emphasis-section{margin-top:9px!important;margin-bottom:4px!important}
+.source-number-line.emphasis-item,
+.source-number-line.emphasis-detail{margin-top:3px!important;margin-bottom:3px!important}
+</style>
+<script id="v30-selective-emphasis-script">
+(function(){
+ 'use strict';
+
+ function levelFromLabel(label){
+   var x=String(label||'').trim();
+   if(/^\d+\.$/.test(x))return 'main';
+   if(/^\d+\)$/.test(x))return 'section';
+   if(/^[A-H][.)]$/.test(x))return 'section';
+   if(/^(?:i|ii|iii|iv|v|vi|vii|viii|ix|x)\)$/i.test(x))return 'detail';
+   if(/^[a-z][.)]$/.test(x))return 'item';
+   return '';
+ }
+
+ function classify(root){
+   root=root||document;
+   root.querySelectorAll('.source-number-line,.h-row').forEach(function(el){
+     el.classList.remove('emphasis-main','emphasis-section','emphasis-item','emphasis-detail');
+     var n=el.querySelector(':scope > .num-label');
+     if(!n)return;
+     var lev=levelFromLabel(n.textContent);
+     if(lev)el.classList.add('emphasis-'+lev);
+   });
+ }
+
+ function run(){
+   classify(document.getElementById('slideBody')||document);
+   classify(document.getElementById('surveySlideBody')||document);
+ }
+
+ function boot(){
+   ['slideBody','surveySlideBody'].forEach(function(id){
+     var root=document.getElementById(id);if(!root)return;
+     new MutationObserver(function(){setTimeout(run,0);}).observe(root,{childList:true,subtree:true});
+   });
+   run();
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+
+ var prior=window.renderSlide;
+ if(typeof prior==='function'){
+   window.renderSlide=function(){
+     prior();
+     setTimeout(run,0);
+   };
+ }
+})();
+</script>
 
 </body>
 </html>
