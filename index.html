@@ -71,8 +71,12 @@ h3{font-size:16px;margin-bottom:8px}
 /* source content */
 .source-block{font-size:14px;line-height:1.72;word-break:keep-all;overflow-wrap:anywhere}
 .source-line{margin:0 0 10px}
-.source-heading{font-weight:900;font-size:1.06em;color:#14291b;border-left:4px solid var(--accent);padding-left:9px;margin-top:5px}
-.source-bullet{padding-left:16px;position:relative}
+.source-heading{font-weight:850;font-size:1.04em;color:#14291b;border-left:4px solid var(--accent);padding-left:9px;margin:16px 0 8px}
+.source-subheading{font-weight:760;color:#203c29;padding-left:20px;margin:12px 0 7px}
+.source-subsub{font-weight:650;color:#334b39;padding-left:34px;margin:8px 0 6px}
+.source-bullet{padding-left:18px;position:relative;font-weight:450}
+.source-line{font-weight:400}
+.source-block .pdf-bold{font-weight:700}
 .source-bullet:before{content:"•";position:absolute;left:2px;color:var(--accent);font-weight:900}
 .pdf-bold{font-weight:950;color:#102b18;background:linear-gradient(transparent 62%,#dce8d8 62%);padding:0 1px}
 .key-callout{border:1px solid #cbd8ca;background:var(--accent-soft);border-radius:14px;padding:13px;margin:10px 0}
@@ -452,8 +456,11 @@ function guessTitle(block){
 function formatSource(block){
  return block.split('\n').map(line=>{
   const t=line.trim();if(!t)return'';
-  if(/^(?:\d+[.)]|[A-Z][.)]|[①-⑩]|<[^>]+>|핵심|결론|본문|정의|결과|예상|코칭|적용|미션)/.test(t))return `<p class="source-line source-heading">${formatInline(t)}</p>`;
-  if(/^[-●*•]/.test(t))return `<p class="source-line source-bullet">${formatInline(t.replace(/^[-●*•]\s*/,''))}</p>`;
+  if(/^\d+[.)]\s*/.test(t))return `<p class="source-line source-heading">${formatInline(t)}</p>`;
+  if(/^\d+\)\s*/.test(t))return `<p class="source-line source-subheading">${formatInline(t)}</p>`;
+  if(/^[a-zA-Z][.)]\s*/.test(t))return `<p class="source-line source-subsub">${formatInline(t)}</p>`;
+  if(/^(?:[①-⑩]|<[^>]+>|핵심|결론|본문|정의|결과|예상|코칭|적용|미션)/.test(t))return `<p class="source-line source-heading">${formatInline(t)}</p>`;
+  if(/^[-●*•○]/.test(t))return `<p class="source-line source-bullet">${formatInline(t.replace(/^[-●*•○]\s*/,''))}</p>`;
   if(/^(?:“|').*(?:”|')$/.test(t))return `<div class="key-callout">${formatInline(t)}</div>`;
   return `<p class="source-line">${formatInline(t)}</p>`;
  }).join('');
@@ -462,7 +469,6 @@ function formatInline(text){
  let s=esc(text);
  s=s.replace(/(“[^”]{2,}”|‘[^’]{2,}’)/g,'<strong class="pdf-bold">$1</strong>');
  s=s.replace(/^([^:：]{2,24})([:：])/,'<strong class="pdf-bold">$1</strong>$2');
- s=s.replace(/(핵심 주제|경외|복|평강|회복|언약|순종|책임|사랑|신앙 계승)/g,'<strong class="pdf-bold">$1</strong>');
  return s;
 }
 
