@@ -2950,6 +2950,302 @@ body.lesson-five .survey-item .choice span{padding:8px 6px;font-size:12px;line-h
  }
 })();
 </script>
+<style id="v32-hierarchy-repair-style">
+/* v32 — hierarchy repair
+   Fixes the broken narrow text columns caused by putting inline emphasis spans
+   directly into CSS grid cells. Every hierarchy row now has exactly 2 grid cells:
+   marker + one content wrapper. */
+#slideBody.hierarchy-v32 .source-block{
+  line-height:1.46!important;
+  letter-spacing:-0.01em!important;
+}
+#slideBody.hierarchy-v32 .hierarchy-row{
+  display:grid!important;
+  grid-template-columns:34px minmax(0,1fr)!important;
+  column-gap:4px!important;
+  align-items:start!important;
+  width:100%!important;
+  min-width:0!important;
+  box-sizing:border-box!important;
+  padding-left:var(--hv-pad,0px)!important;
+  margin-left:0!important;
+  margin-right:0!important;
+  border-left:0!important;
+  line-height:1.46!important;
+  letter-spacing:-0.01em!important;
+}
+#slideBody.hierarchy-v32 .hierarchy-row>.num-label{
+  grid-column:1!important;
+  display:block!important;
+  width:auto!important;
+  min-width:0!important;
+  margin:0!important;
+  padding:0!important;
+  text-align:left!important;
+  line-height:1.46!important;
+}
+#slideBody.hierarchy-v32 .hierarchy-row>.hierarchy-text{
+  grid-column:2!important;
+  display:block!important;
+  width:auto!important;
+  min-width:0!important;
+  max-width:100%!important;
+  white-space:normal!important;
+  word-break:keep-all!important;
+  overflow-wrap:break-word!important;
+  line-height:1.46!important;
+  font-weight:inherit!important;
+}
+#slideBody.hierarchy-v32 .hierarchy-row>.hierarchy-text *{
+  white-space:normal!important;
+  max-width:100%!important;
+}
+#slideBody.hierarchy-v32 .hierarchy-main{
+  --hv-pad:0px;
+  margin-top:15px!important;
+  margin-bottom:6px!important;
+  font-weight:720!important;
+  color:#14291b!important;
+}
+#slideBody.hierarchy-v32 .hierarchy-main>.num-label{font-weight:850!important}
+#slideBody.hierarchy-v32 .hierarchy-section{
+  --hv-pad:14px;
+  margin-top:9px!important;
+  margin-bottom:4px!important;
+  font-weight:600!important;
+  color:#203c29!important;
+}
+#slideBody.hierarchy-v32 .hierarchy-section>.num-label{font-weight:780!important}
+#slideBody.hierarchy-v32 .hierarchy-item{
+  --hv-pad:30px;
+  margin-top:4px!important;
+  margin-bottom:3px!important;
+  font-weight:400!important;
+  color:inherit!important;
+}
+#slideBody.hierarchy-v32 .hierarchy-item>.num-label{font-weight:720!important}
+#slideBody.hierarchy-v32 .hierarchy-detail{
+  --hv-pad:46px;
+  margin-top:2px!important;
+  margin-bottom:2px!important;
+  font-weight:400!important;
+  color:#334b39!important;
+}
+#slideBody.hierarchy-v32 .hierarchy-detail>.num-label{font-weight:700!important}
+
+/* Dash/star/bullet source markers are hierarchy too. */
+#slideBody.hierarchy-v32 .source-bullet.hierarchy-bullet{
+  position:relative!important;
+  display:block!important;
+  margin:2px 0 3px!important;
+  padding-left:calc(var(--hv-bullet-pad,34px) + 18px)!important;
+  line-height:1.46!important;
+  letter-spacing:-0.01em!important;
+  font-weight:400!important;
+  min-width:0!important;
+}
+#slideBody.hierarchy-v32 .source-bullet.hierarchy-bullet:before{
+  position:absolute!important;
+  left:var(--hv-bullet-pad,34px)!important;
+  top:0!important;
+  font-weight:760!important;
+  color:var(--accent)!important;
+}
+#slideBody.hierarchy-v32 .source-bullet.source-marker-star:before{content:"*"!important}
+#slideBody.hierarchy-v32 .source-bullet.source-marker-dash:before{content:"–"!important}
+#slideBody.hierarchy-v32 .source-bullet.source-marker-dot:before{content:"•"!important}
+
+/* Continuation text follows the text column of the current parent. */
+#slideBody.hierarchy-v32 .hierarchy-cont{
+  display:block!important;
+  margin:0 0 4px!important;
+  padding-left:var(--hv-cont-pad,34px)!important;
+  line-height:1.46!important;
+  letter-spacing:-0.01em!important;
+  font-weight:400!important;
+  min-width:0!important;
+  white-space:normal!important;
+  word-break:keep-all!important;
+  overflow-wrap:break-word!important;
+}
+#slideBody.hierarchy-v32 .source-heading.hierarchy-semantic{
+  margin-top:10px!important;
+  margin-bottom:4px!important;
+  padding-left:9px!important;
+  font-weight:620!important;
+  line-height:1.46!important;
+}
+
+/* Normalize 5강 기준의 문장 호흡 across the entire learning content. */
+#slideBody.hierarchy-v32 .source-line,
+#slideBody.hierarchy-v32 .source-number-line,
+#slideBody.hierarchy-v32 .source-heading,
+#slideBody.hierarchy-v32 .source-subheading,
+#slideBody.hierarchy-v32 .source-subsub,
+#slideBody.hierarchy-v32 .source-roman,
+#slideBody.hierarchy-v32 .key-callout,
+#slideBody.hierarchy-v32 .actual-application,
+.question-card label,
+.survey-item>strong,
+.checklist-prompt,
+.inline-check-item,
+.choice span,
+.checklist-intro,
+.checklist-note{
+  line-height:1.46!important;
+  letter-spacing:-0.01em!important;
+}
+
+@media(max-width:560px){
+  #slideBody.hierarchy-v32 .hierarchy-row{
+    grid-template-columns:30px minmax(0,1fr)!important;
+    column-gap:3px!important;
+  }
+  #slideBody.hierarchy-v32 .hierarchy-section{--hv-pad:8px}
+  #slideBody.hierarchy-v32 .hierarchy-item{--hv-pad:18px}
+  #slideBody.hierarchy-v32 .hierarchy-detail{--hv-pad:30px}
+}
+</style>
+<script id="v32-hierarchy-repair-script">
+(function(){
+ 'use strict';
+
+ /* Preserve the original bullet symbol in future source rendering. */
+ function installFormatSource(){
+   if(typeof window.formatSource!=='function'||window.formatSource.__v32)return;
+   window.formatSource=function(block){
+     block=String(block||'')
+       .replace(/\s+(?=\d+\)\s*[가-힣A-Za-z“"'(<])/g,'\n')
+       .replace(/\s+(?=\d+\.\s*[가-힣A-Za-z“"'(<])/g,'\n')
+       .replace(/\s+(?=[A-Za-z]\)\s*[가-힣A-Za-z“"'(<])/g,'\n');
+     return block.split(/\n/).map(function(line){
+       var t=line.trim();if(!t)return '';
+       if(/^(?:\d+[.)]|[A-Z][.)]|[a-z][.)]|[①-⑩])\s+/.test(t)){
+         var m=t.match(/^((?:\d+[.)]|[A-Z][.)]|[a-z][.)]|[①-⑩]))\s*(.*)$/);
+         if(m)return '<p class="source-number-line"><span class="num-label">'+m[1]+'</span>'+formatInline(m[2])+'</p>';
+       }
+       if(/^(?:<[^>]+>|핵심|결론|본문|정의|결과|예상|코칭|적용|미션)/.test(t)){
+         return '<p class="source-line source-heading">'+formatInline(t)+'</p>';
+       }
+       var bm=t.match(/^([-*●•])\s*(.*)$/);
+       if(bm){
+         var cls=bm[1]==='*'?'source-marker-star':(bm[1]==='-'?'source-marker-dash':'source-marker-dot');
+         return '<p class="source-line source-bullet '+cls+'" data-source-marker="'+bm[1]+'">'+formatInline(bm[2])+'</p>';
+       }
+       if(/^(?:“|').*(?:”|')$/.test(t))return '<div class="key-callout">'+formatInline(t)+'</div>';
+       return '<p class="source-line">'+formatInline(t)+'</p>';
+     }).join('');
+   };
+   window.formatSource.__v32=true;
+ }
+ installFormatSource();
+
+ function kind(label){
+   var x=String(label||'').trim();
+   if(/^\d+\.$/.test(x))return 'main';
+   if(/^\d+\)$/.test(x))return 'section';
+   if(/^[A-H][.)]$/.test(x))return 'section';
+   if(/^(?:i|ii|iii|iv|v|vi|vii|viii|ix|x)\)$/i.test(x))return 'detail';
+   if(/^[a-z][.)]$/.test(x))return 'item';
+   return '';
+ }
+ function level(k){return k==='main'?1:k==='section'?2:k==='item'?3:k==='detail'?4:1}
+ function indent(level){return ({1:34,2:50,3:66,4:82})[level]||34}
+
+ function wrapHierarchyText(el,label){
+   var existing=el.querySelector(':scope > .hierarchy-text');
+   if(existing)return;
+   var wrap=document.createElement('span');
+   wrap.className='hierarchy-text';
+   var nodes=[].slice.call(el.childNodes);
+   nodes.forEach(function(n){
+     if(n===label)return;
+     wrap.appendChild(n);
+   });
+   el.appendChild(wrap);
+ }
+
+ function inferLegacyMarker(el){
+   if(el.classList.contains('source-marker-star')||el.classList.contains('source-marker-dash')||el.classList.contains('source-marker-dot'))return;
+   var marker=el.getAttribute('data-source-marker');
+   if(marker==='*')el.classList.add('source-marker-star');
+   else if(marker==='-' )el.classList.add('source-marker-dash');
+   else el.classList.add('source-marker-dash'); // legacy bullet had its source mark stripped; dash is safest default.
+ }
+
+ function decorate(block){
+   if(!block)return;
+   var currentLevel=1;
+   var children=[].slice.call(block.children);
+   children.forEach(function(el){
+     if(el.matches('.stable-table,.stable-cards,.v25-table,.check-grid,.inline-check-grid,.peace-grid-v22,.lesson-youtube-frame'))return;
+     if(el.closest('.stable-table,.stable-cards,.v25-table,.check-grid,.inline-check-grid,.peace-grid-v22'))return;
+
+     el.classList.remove(
+       'hierarchy-row','hierarchy-main','hierarchy-section','hierarchy-item','hierarchy-detail',
+       'hierarchy-bullet','hierarchy-cont','hierarchy-semantic'
+     );
+
+     var label=el.querySelector(':scope > .num-label');
+     if(label){
+       var k=kind(label.textContent);
+       if(k){
+         currentLevel=level(k);
+         wrapHierarchyText(el,label);
+         el.classList.add('hierarchy-row','hierarchy-'+k);
+         return;
+       }
+     }
+
+     if(el.classList.contains('source-bullet')){
+       inferLegacyMarker(el);
+       el.classList.add('hierarchy-bullet');
+       el.style.setProperty('--hv-bullet-pad',indent(Math.min(4,currentLevel+1))+'px');
+       return;
+     }
+
+     if(el.classList.contains('source-heading')){
+       el.classList.add('hierarchy-semantic');
+       currentLevel=Math.min(currentLevel,2);
+       return;
+     }
+
+     if(el.matches('.source-line,.source-subheading,.source-subsub,.source-roman')){
+       el.classList.add('hierarchy-cont');
+       el.style.setProperty('--hv-cont-pad',indent(currentLevel)+'px');
+     }
+   });
+ }
+
+ function apply(){
+   installFormatSource();
+   var root=document.getElementById('slideBody');if(!root)return;
+   root.classList.add('hierarchy-v32');
+   root.querySelectorAll('.source-block').forEach(decorate);
+ }
+
+ function boot(){
+   var root=document.getElementById('slideBody');if(!root)return;
+   var queued=false;
+   new MutationObserver(function(){
+     if(queued)return;queued=true;
+     setTimeout(function(){queued=false;apply()},0);
+   }).observe(root,{childList:true,subtree:true});
+   apply();
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);
+ else boot();
+
+ /* Run after the complete slide rendering chain. */
+ var prior=window.renderSlide;
+ if(typeof prior==='function'){
+   window.renderSlide=function(){
+     prior();
+     setTimeout(apply,0);
+   };
+ }
+})();
+</script>
 
 </body>
 </html>
